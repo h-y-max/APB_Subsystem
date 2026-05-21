@@ -1,10 +1,10 @@
-# APB 总线子系统
+# APB 子系统
 
 ## 设计功能
 
 **Master 模块 (APB_Master)**
 - 支持用户发起读写传输（user_en 脉冲触发）
-- 自动完成 APB 协议时序（SETUP 周期 + ACCESS 周期）
+- 状态机：IDLE → WR/RD → ENABLE → DONE → WAIT → IDLE
 - 传输完成后输出 user_tran_done 脉冲
 - 读操作返回 user_rdata
 
@@ -26,7 +26,7 @@
 
 ## 仿真结果
 
-![APB 波形图](APB_waveform.png)
+![APB波形图](./APB_waveform.png)
 
 上图展示了写操作和读操作的波形：
 - w_psel 和 w_penable 时序符合 APB 规范
@@ -40,9 +40,9 @@
 - APB_top.v：顶层连接模块
 - APB_top_tb.v：仿真 testbench
 
-## 改进方向
+## 扩展方向
 
-当前版本为无等待传输。若需支持慢速外设，可增加计数器延迟 PREADY 响应，并在 Master 中添加 WAIT 状态。
+当前版本为无等待传输（PREADY 恒为 1）。若需连接慢速外设，可在 Slave 中增加计数器延迟 PREADY 响应，并在 Master 中添加等待状态。
 
 ## 许可证
 
