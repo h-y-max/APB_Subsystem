@@ -15,13 +15,11 @@ reg [31:0] memory [0:1023];
 reg [31:0] r_rdata;
 integer i;
 
-// 复位初始化 memory
 always@(posedge CLK or negedge reset_n)
     if(!reset_n)
         for(i=0;i<1024;i=i+1)
             memory[i] <= 32'ha5a5a5a5;
 
-// 读写操作
 always@(posedge CLK or negedge reset_n)
     if(!reset_n)
         r_rdata <= 0;
