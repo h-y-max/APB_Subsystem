@@ -26,7 +26,7 @@
 
 ## 仿真结果
 
-![APB 波形图](./waveform.png)
+![APB 波形图](.APB_waveform.png)
 
 上图展示了写操作和读操作的波形：
 - w_psel 和 w_penable 时序符合 APB 规范
