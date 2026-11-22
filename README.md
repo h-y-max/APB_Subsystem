@@ -1,13 +1,12 @@
-# APB_UART — APB 总线接口的 UART 外设
+# APB_UART
 
-带完整 APB 从机接口的 UART 外设（8N1，LSB first，全双工），含寄存器组、可屏蔽中断与 TX 反压。为便于板级调试与仿真验证，片内内置一个"用户接口 → APB 主机"的状态机，形成自包含的 APB 系统：用户侧只需给出地址/数据/读写使能，主机状态机自动完成 APB setup/access 时序。
-
+  带完整 APB 从机接口的 UART 外设（8N1，LSB first，全双工），含寄存器组、可屏蔽中断与 TX 反压。为便于板级调试与仿真验证，片内内置一个"用户接口 → APB 主机"的状态机，形成自包含的 APB 系统：用户侧只需给出地址/数据/读写使能，主机状态机自动完成 APB setup/access 时序。
 语言：Verilog-2001，全部模块参数化
 
 ## 特性
 
 - 标准 APB 协议：PSEL / PENABLE 两阶段（setup / access），支持 PREADY 等待状态，CTRL 寄存器写入带 PSTRB 字节选通
-- UART 8N1（1 起始位 + 8 数据位 + 1 停止位），波特率参数化，默认 9600 @ 50 MHz
+- UART 8N1（1 起始位 + 8 数据位 + 1 停止位），波特率参数化，默认波特率:9600  时钟频率:50 MHz
 - 寄存器接口：TX / RX / 状态 / 控制，偏移 0x00 / 0x04 / 0x08 / 0x0C
 - 中断：TX/RX 完成可屏蔽中断，flag 由硬件置位、软件清除（写 CTRL[31] 清 TX flag，读 RX 清 RX flag）
 - TX 忙时写入由 PREADY 挂起（反压），不会丢数据
@@ -43,7 +42,7 @@
 
 ### 1. 系统结构
 
-APB_uart_top 内含 APB_uart_Master 与 APB_uart_Slave。Master 将用户侧简单握手翻译成标准 APB 时序；Slave 是 UART 外设本体（寄存器组 + uart_tx + uart_rx）。真实 SoC 中 APB 主机通常由 CPU 或总线互联担任，本设计的 Master 是自包含验证/上板友好的简化模型。
+APB_uart_top 内含 APB_uart_Master 与 APB_uart_Slave。Master 将用户侧简单握手翻译成标准 APB 时序；Slave 是 UART 外设本体（寄存器组 + uart_tx + uart_rx）。真实 SoC 中 APB 主机通常由 CPU 或总线互联担任，本设计的 Master 是自包含验证的简化模型。
 
 ### 2. APB Master 状态机
 
@@ -85,7 +84,6 @@ Testbench 为自校验结构，不依赖 DUT 内部信号：
 
 ## 可改进点
 
-- uart_tx 的 1 秒延时计数器复位后会自行计满并启动发送：总线空闲时约每隔 1 s 自发一帧（数据为 0 或残留值），若非刻意的演示自动重发，应删除或改为仅由 send_go 触发
 - 接收路径无帧错误检测（未校验停止位）、无溢出标志，新帧会覆盖 RX 寄存器，依赖软件及时读走
 - uart_tx / uart_rx 的输入同步链进程无复位，上电初态依赖管脚默认电平
 - STA 与 CTRL 回读中 irq_en 的 bit 位置不一致（STA bit4/5，CTRL bit0/1），软件编程易误用
